@@ -47,7 +47,7 @@ module.exports.editSql = (req, res) => {
     //获取客户端提供的用户数据
     const data = req.body
     const select = (results) => {
-    const sql = `UPDATE action_sql SET sql_name = '${data.sql_name}', sql = '${data.sql}',s_update_by='${results[0].username}' WHERE sql_id = '${data.sql_id}';`
+    const sql = `UPDATE action_sql SET sql_name = '${data.sql_name}', sql_content = '${data.sql_content}',s_update_by='${results[0].username}' WHERE sql_id = '${data.sql_id}';`
         db.query(sql, (err2, results2) => {
             if (err2) {
                 return res.send({ status: 404, message: err2.message })
@@ -62,7 +62,9 @@ module.exports.addSql = (req, res) => {
     const data = req.body
     const select = (results) => {
         const id = uuid.v7()
-    const sql = `INSERT INTO action_sql (sql_id,s_create_by) VALUES ('${id}','${results[0].username}');`
+    const sql = `INSERT INTO action_sql (sql_name,sql_id,s_create_by,sql_content) VALUES ('${data.sql_name}','${id}','${results[0].username}','${data.sql_content}');`
+    console.log(sql);
+    
         db.query(sql, (err2, results2) => {
             if (err2) {
                 return res.send({ status: 404, message: err2.message })
