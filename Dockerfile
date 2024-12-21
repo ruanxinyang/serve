@@ -8,6 +8,7 @@ RUN git config --global user.name "ruanxinyang" && git config --global user.emai
 # 增加 Git HTTP 缓冲区大小
 RUN git config --global http.postBuffer 524288000
 RUN git clone https://github.com/ruanxinyang/serve.git
+WORKDIR /root/node_project/serve
 # 更换 npm 源为官方源
 RUN npm config set registry https://registry.npmjs.org/
 RUN npm install
@@ -16,3 +17,4 @@ EXPOSE 3017
 
 # 容器启动时执行的命令
 CMD [ "node", "app.js" ]
+#ZIMXPZBKZBBSVNJQFIUHJIDITUIXKCFN
