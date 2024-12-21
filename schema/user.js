@@ -22,6 +22,6 @@ exports.reg_login_schema = {
   // 表示需要对 req.body 中的数据进行验证
   body: {
     username,
-    // password,
+    password,
   },
 }
