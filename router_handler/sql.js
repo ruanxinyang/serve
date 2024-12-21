@@ -50,7 +50,7 @@ module.exports.editSql = (req, res) => {
     const sql = `UPDATE action_sql SET sql_name = '${data.sql_name}', sql_content = '${data.sql_content}',s_update_by='${results[0].username}' WHERE sql_id = '${data.sql_id}';`
         db.query(sql, (err2, results2) => {
             if (err2) {
-                return res.send({ status: 404, message: err2.message })
+                return res.send({ status: 404, data: err2.message })
             }
             return res.send({ status: 200, data: results2 })
         })
@@ -62,12 +62,13 @@ module.exports.addSql = (req, res) => {
     const data = req.body
     const select = (results) => {
         const id = uuid.v7()
+        if(!data.sql_name || !data.sql_content){
+            return res.send({ status: 404, data: '参数不能为空' })
+        }
     const sql = `INSERT INTO action_sql (sql_name,sql_id,s_create_by,sql_content) VALUES ('${data.sql_name}','${id}','${results[0].username}','${data.sql_content}');`
-    console.log(sql);
-    
         db.query(sql, (err2, results2) => {
             if (err2) {
-                return res.send({ status: 404, message: err2.message })
+                return res.send({ status: 404, data: err2.message })
             }
             return res.send({ status: 200, data: {sql_id: id, message: '新增成功'} })
         })

@@ -139,7 +139,7 @@ exports.run = (req,res)=>{
                     return res.cc(err)
                 }
                 if(results.length > 0){
-                    let query = buildQuery(results[0].sql, params);
+                    let query = buildQuery(results[0].sql_content, params);
                     db.query(query, (queryErr, queryResults) =>{
                         if(queryErr){
                             return res.cc(queryErr)
