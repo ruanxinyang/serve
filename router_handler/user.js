@@ -29,7 +29,7 @@ const checkToken = (token, callback,res) => {
 module.exports.regUser = (req,res)=>{
     //获取客户端提供的用户数据
     const userinfo = req.body
-    
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     if(!userinfo.username || !userinfo.password){
         return res.send({status:404,message:'用户名或者密码不能为空'})
     } 
@@ -45,7 +45,7 @@ module.exports.regUser = (req,res)=>{
     //调用bcrpyt.hashSync()对密码进行加密
     userinfo.password = bcrypt.hashSync(userinfo.password,10);
     let insertSql = 'insert into users set ?';
-    db.query(insertSql,{user_id: uuid.v1(),username:userinfo.username,password:userinfo.password,phone: userinfo.username},(err,results)=>{
+    db.query(insertSql,{user_id: uuid.v1(),username:userinfo.username,password:userinfo.password,phone: userinfo.username,ip:ip},(err,results)=>{
         if(err){
             return res.cc(err)
         } 
@@ -57,9 +57,8 @@ module.exports.regUser = (req,res)=>{
 }
 exports.login = (req,res)=>{
     const userinfo = req.body;
-    const sql = `select * from users where username=?`;   
-    console.log(req);
-     
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const sql = `select * from users where username=?`;        
     if(!userinfo.username|| !userinfo.password){
         return res.send({status:404,message:'用户名或者密码不能为空'})
     }
@@ -77,7 +76,7 @@ exports.login = (req,res)=>{
            const user = {user_id:results[0].user_id,password:'',user_pic:''}
            //对用户名的信息进行加密
            const tokenStr = jwt.sign(user,config.jwtSecreKey,{expiresIn:'10h'})
-           const sql2= `update users set token = '${tokenStr}' where username = '${userinfo.username}'`;
+           const sql2= `update users set token = '${tokenStr}', ip='${ip}' where username = '${userinfo.username}'`;
            
            db.query(sql2,(err,results)=>{
             if(err){
