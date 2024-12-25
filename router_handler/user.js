@@ -29,7 +29,7 @@ const checkToken = (token, callback, res) => {
 module.exports.regUser = (req, res) => {
     //获取客户端提供的用户数据
     const userinfo = req.body
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const ip = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     if (!userinfo.username || !userinfo.password) {
         return res.send({ status: 404, message: '用户名或者密码不能为空' })
     }
