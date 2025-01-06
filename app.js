@@ -3,8 +3,6 @@ const cors = require('cors')
 const app = express()
 const bodyParser = require('body-parser')
 const userRouter = require('./router/user.js')
-const detail = require('./router/detail.js')
-app.set('trust proxy', true); // 信任代理
 app.use(function (req, res, next) {
   // status = 0 为成功； status = 1 为失败； 默认将 status 的值设置为 1，方便处理失败的情况
   res.cc = function (err, status = 404) {
@@ -17,7 +15,6 @@ app.use(function (req, res, next) {
   }
   next()
 })
-app.use(detail)
 app.use(cors())
 //配置解析表单的中间件
 app.use(express.urlencoded({extended:false}))

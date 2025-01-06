@@ -10,7 +10,7 @@ const checkToken = (token, callback, res) => {
         return res.send({ status: 404, message: '暂无权限' })
     }
     try {
-        let sqlStr = `select username from users where token=?`;
+        let sqlStr = `select phone from users where token=?`;
         db.query(sqlStr, token, (err, results) => {
             if (err) {
 
@@ -33,7 +33,7 @@ module.exports.regUser = (req, res) => {
     if (!userinfo.username || !userinfo.password) {
         return res.send({ status: 404, message: '用户名或者密码不能为空' })
     }
-    let sqlStr = `select * from users where username=?`;
+    let sqlStr = `select * from users where phone=?`;
     db.query(sqlStr, userinfo.username, (err, results) => {
         if (err) {
             return res.send({ status: 404, message: err.message })
@@ -60,7 +60,7 @@ module.exports.regUser = (req, res) => {
 exports.login = (req, res) => {
     const userinfo = req.body;
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-    const sql = `select * from users where username=?`;
+    const sql = `select * from users where phone=?`;
     if (!userinfo.username || !userinfo.password) {
         return res.send({ status: 404, message: '用户名或者密码不能为空' })
     }
@@ -78,16 +78,19 @@ exports.login = (req, res) => {
             const user = { user_id: results[0].user_id, password: '', user_pic: '' }
             //对用户名的信息进行加密
             const tokenStr = jwt.sign(user, config.jwtSecreKey, { expiresIn: '10h' })
-            const sql2 = `update users set token = '${tokenStr}', ip='${ip}' where username = '${userinfo.username}'`;
+            const sql2 = `update users set token = '${tokenStr}', ip='${ip}' where phone = '${userinfo.username}'`;
 
-            db.query(sql2, (err, results) => {
+            db.query(sql2, (err, results2) => {
                 if (err) {
                     return res.cc(err)
                 }
-                if (results.affectedRows !== 1) return res.cc('登录失败')
+                if (results2.affectedRows !== 1) return res.cc('登录失败')                    
                 res.send({
                     status: 200, message: '登录成功',
-                    token: tokenStr
+                    token: tokenStr,
+                    avatar: results[0].avatar,
+                    username: results[0].username,
+                    user_id: results[0].user_id
                 })
             })
 
@@ -98,7 +101,7 @@ exports.login = (req, res) => {
 }
 exports.exit = (req, res) => {
     const userinfo = req.body;
-    const sql = `select * from users where username= '${userinfo.username}'`;
+    const sql = `select * from users where phone= '${userinfo.username}'`;
     if (!userinfo.username || !userinfo.password) {
         return res.send({ status: 404, message: '用户不存在' })
     }
@@ -108,7 +111,7 @@ exports.exit = (req, res) => {
         }
         console.log(results);
         if (results.length !== 1) return res.cc('用户不存在')
-        const sql2 = `update users set token = '' where username = ${db.escape(userinfo.username)}`;
+        const sql2 = `update users set token = '' where phone = ${db.escape(userinfo.username)}`;
 
         db.query(sql2, (err, results) => {
             if (err) {
@@ -118,6 +121,46 @@ exports.exit = (req, res) => {
             res.send({ status: 200, message: '退出成功' })
         })
     })
+}
+exports.fetchUserInfo = (req, res) => {
+    const data = req.body;
+    if (!data.token) {
+        return res.send({ status: 404, data: '参数不合法' })
+    }
+    try {
+        const sql = `select avatar,phone,user_id,username from users where token = ?`;
+        db.query(sql, data.token, (err, results) => {
+            if (err) {
+                return res.cc(err)
+            }
+            if (results.length <= 0) return res.cc('token过期')
+                res.send({
+                    status: 200,
+                    data: results
+                })
+
+        })
+    } catch (err) {
+        return res.cc(err)
+    }
+
+}
+exports.editUserInfo = (req, res) => {
+    //获取客户端提供的用户数据
+    const data = req.body
+    const select = (results) => {
+        if (!data.user_id || !data.username || !data.avatar) {
+            return res.send({ status: 404, data: '参数不能为空' })
+        }
+        const sql2 = `UPDATE users SET username = '${data.username}', avatar = '${data.avatar}',s_update_by='${results[0].phone}' WHERE user_id = '${data.user_id}';`
+        db.query(sql2, (err2, results2) => {
+            if (err2) {
+                return res.send({ status: 404, data: err2.message })
+            }
+            return res.send({ status: 200, data: results2 })
+        })
+    }
+    checkToken(data.token, select, res)
 }
 exports.run = (req, res) => {
     const data = req.body;

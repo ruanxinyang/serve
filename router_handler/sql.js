@@ -52,7 +52,7 @@ module.exports.addSql = (req, res) => {
             return res.send({ status: 404, data: '参数不能为空' })
         }
         if(data.sql_id){
-            const sql2 = `UPDATE action_sql SET sql_name = '${data.sql_name}', sql_content = '${data.sql_content}',s_update_by='${results[0].username}' WHERE sql_id = '${data.sql_id}';`
+            const sql2 = `UPDATE action_sql SET sql_name = '${data.sql_name}', sql_content = '${data.sql_content}',s_update_by='${results[0].phone}' WHERE sql_id = '${data.sql_id}';`
             db.query(sql2, (err2, results2) => {
                 if (err2) {
                     return res.send({ status: 404, data: err2.message })
@@ -60,7 +60,7 @@ module.exports.addSql = (req, res) => {
                 return res.send({ status: 200, data: results2 })
             })
         }else{
-            const sql = `INSERT INTO action_sql (sql_name,sql_id,s_create_by,sql_content) VALUES ('${data.sql_name}','${id}','${results[0].username}','${data.sql_content}');`
+            const sql = `INSERT INTO action_sql (sql_name,sql_id,s_create_by,sql_content) VALUES ('${data.sql_name}','${id}','${results[0].phone}','${data.sql_content}');`
             db.query(sql, (err2, results2) => {
                 if (err2) {
                     return res.send({ status: 404, data: err2 })
@@ -75,7 +75,7 @@ module.exports.deleteSql = (req, res) => {
     //获取客户端提供的用户数据
     const data = req.body
     const select = (results) => {
-        const sql = `UPDATE action_sql SET s_is_del = 0, s_update_by='${results[0].username}' WHERE sql_id = '${data.sql_id}';`
+        const sql = `UPDATE action_sql SET s_is_del = 0, s_update_by='${results[0].phone}' WHERE sql_id = '${data.sql_id}';`
         db.query(sql, (err2, results2) => {
             if (err2) {
                 return res.send({ status: 404, message: err2.message })
