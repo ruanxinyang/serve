@@ -10,7 +10,7 @@ const checkToken = (token, callback, res) => {
         return res.send({ status: 404, message: '暂无权限' })
     }
     try {
-        let sqlStr = `select phone from users where token=?`;
+        let sqlStr = `select phone,phone from users where token=?`;
         db.query(sqlStr, token, (err, results) => {
             if (err) {
 
