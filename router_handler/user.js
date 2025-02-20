@@ -64,6 +64,16 @@ exports.login = (req, res) => {
     if (!userinfo.username || !userinfo.password) {
         return res.send({ status: 404, message: '用户名或者密码不能为空' })
     }
+    const forwardedFor = req.headers['x-forwarded-for'];
+    let clientIp;
+    
+    if (forwardedFor) {
+        // 如果存在 X-Forwarded-For 字段，取第一个 IP 地址
+        clientIp = forwardedFor.split(',')[0].trim();
+    } else {
+        // 如果不存在 X-Forwarded-For 字段，使用 req.socket.remoteAddress
+        clientIp = req.socket.remoteAddress;
+    }
     try {
         db.query(sql, userinfo.username, (err, results) => {
             if (err) {
@@ -78,7 +88,7 @@ exports.login = (req, res) => {
             const user = { user_id: results[0].user_id, password: '', user_pic: '' }
             //对用户名的信息进行加密
             const tokenStr = jwt.sign(user, config.jwtSecreKey, { expiresIn: '10h' })
-            const sql2 = `update users set token = '${tokenStr}', ip='${ip}' where phone = '${userinfo.username}'`;
+            const sql2 = `update users set token = '${tokenStr}', ip='${clientIp}' where phone = '${userinfo.username}'`;
 
             db.query(sql2, (err, results2) => {
                 if (err) {
