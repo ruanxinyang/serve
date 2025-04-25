@@ -4,7 +4,7 @@ const app = express()
 const bodyParser = require('body-parser')
 const userRouter = require('./router/user.js')
 app.use(function (req, res, next) {
-  // status = 0 为成功； status = 1 为失败； 默认将 status 的值设置为 1，方便处理失败的情况
+  // status = 200 为成功； status = 1 为失败； 默认将 status 的值设置为 1，方便处理失败的情况
   res.cc = function (err, status = 404) {
     res.send({
       // 状态

@@ -3,6 +3,7 @@ const router = express.Router();
 
 const user_handler = require('../router_handler/user');
 const sql_handler = require('../router_handler/sql')
+const menu_handler = require('../router_handler/menu')
 //导入验证数据的中间件
 const expressJoi = require('@escook/express-joi');
 const {reg_login_schema} = require('../schema/user'); 
@@ -17,4 +18,5 @@ router.post('/addSql',sql_handler.addSql)
 router.post('/deleteSql',sql_handler.deleteSql)
 router.post('/tables',sql_handler.tables)
 router.post('/fetchTable',sql_handler.fetchTable)
+router.post('/menu/getMenu',menu_handler.getMenu)
 module.exports = router;

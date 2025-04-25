@@ -1,10 +1,10 @@
-const mysql = require('mysql');
+const mysql = require('mysql2');
 
 const db = mysql.createPool({
-    host: 'rm-wz9s7m9p2c9787v2xvo.mysql.rds.aliyuncs.com',
+    host: '150.158.55.244',
     port: 3306,
-    user: 'Ruan1234',
-    password: 'Ruan1234',
+    user: 'root',
+    password: 'ruan1234',
     database: 'dev',
     timezone: 'Z' 
 });

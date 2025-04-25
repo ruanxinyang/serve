@@ -17,6 +17,8 @@ const checkToken = (token, callback, res) => {
                 return res.send({ status: 404, message: err })
             }
             if (results.length <= 0) {
+                console.log(results);
+                
                 return res.send({ status: 404, message: '暂无权限' })
             } else {
                 callback(results)
@@ -34,27 +36,28 @@ module.exports.regUser = (req, res) => {
         return res.send({ status: 404, message: '用户名或者密码不能为空' })
     }
     let sqlStr = `select * from users where phone=?`;
-    db.query(sqlStr, userinfo.username, (err, results) => {
-        if (err) {
-            return res.send({ status: 404, message: err.message })
-        }
-        if (results.length > 0) {
-            return res.send({ status: 404, message: '用户名被占用' })
-        } else {
-            //调用bcrpyt.hashSync()对密码进行加密
-            userinfo.password = bcrypt.hashSync(userinfo.password, 10);
-            let insertSql = 'insert into users set ?';
-            db.query(insertSql, { user_id: uuid.v1(), username: userinfo.username, password: userinfo.password, phone: userinfo.username, ip: ip }, (err, results) => {
-                if (err) {
-                    return res.cc(err)
-                }
-                if (results.affectedRows !== 1) {
-                    return res.send({ status: 404, message: '注册失败' })
-                }
-                res.send({ status: 0, message: '成功' })
-            })
-        }
-    })
+    // db.query(sqlStr, userinfo.username, (err, results) => {
+    //     if (err) {
+    //         return res.send({ status: 404, message: err.message })
+    //     }
+    //     if (results.length > 0) {
+    //         return res.send({ status: 404, message: '用户名被占用' })
+    //     } else {
+    //         //调用bcrpyt.hashSync()对密码进行加密
+    //         userinfo.password = bcrypt.hashSync(userinfo.password, 10);
+    //         let insertSql = 'insert into users set ?';
+    //         db.query(insertSql, { user_id: uuid.v1(), username: userinfo.username, password: userinfo.password, phone: userinfo.username, ip: ip }, (err, results) => {
+    //             if (err) {
+    //                 return res.cc(err)
+    //             }
+    //             if (results.affectedRows !== 1) {
+    //                 return res.send({ status: 404, message: '注册失败' })
+    //             }
+    //             res.send({ status: 0, message: '成功' })
+    //         })
+    //     }
+    // })
+    return res.send({ status: 404, message: '暂不支持注册，请联系管理员' })
 
 }
 exports.login = (req, res) => {
@@ -98,9 +101,7 @@ exports.login = (req, res) => {
                 res.send({
                     status: 200, message: '登录成功',
                     token: tokenStr,
-                    avatar: results[0].avatar,
-                    username: results[0].username,
-                    user_id: results[0].user_id
+                    userInfo: results[0]
                 })
             })
 
